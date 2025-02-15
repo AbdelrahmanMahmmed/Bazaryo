@@ -8,7 +8,7 @@ const path = require('path');
 const cors = require('cors');
 const fs = require('fs');
 const https = require('https');
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 3000;
 
 // Load env variables
 dotenv.config({ path: 'config.env' })
@@ -87,3 +87,5 @@ process.on('unhandledRejection', (err) => {
         process.exit(1);
     })
 });
+
+module.exports = app ;
