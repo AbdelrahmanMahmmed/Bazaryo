@@ -38,7 +38,7 @@ const OrderRouter = require('./routers/OrderRouter.js');
 
 
 // Connection to DataBase
-const DBconnection = require('./config/dbconnection');
+const DBconnection = require('./config/dbConnection.js');
 DBconnection();
 
 // Starter App
