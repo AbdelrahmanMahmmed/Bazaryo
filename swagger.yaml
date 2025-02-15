@@ -1,0 +1,1015 @@
+openapi: 3.0.0
+info:
+  title: Bazaryo API
+  version: "1.0.0"
+  description: >
+    This is the API documentation for the Bazaryo e-commerce platform.
+    It provides endpoints for user authentication, profile management, categories,
+    products, wishlist, cart, reviews, and orders.
+
+servers:
+  - url: http://localhost:5000/api/v1
+    description: Local development server
+
+paths:
+  # ================================
+  # Authentication Endpoints
+  # ================================
+  /Auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a New User
+      description: Registers a new user in the system.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegister'
+      responses:
+        '200':
+          description: User registered successfully
+        '400':
+          description: Bad request
+
+  /Auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: User Login
+      description: Logs in a user with valid credentials.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+      responses:
+        '200':
+          description: Login successful
+        '401':
+          description: Unauthorized
+
+  /Auth/password/forgot:
+    post:
+      tags:
+        - Authentication
+      summary: Forgot Password
+      description: Sends a password reset email.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Reset email sent
+        '404':
+          description: User not found
+
+  /Auth/password/verify-code:
+    post:
+      tags:
+        - Authentication
+      summary: Verify Reset Code
+      description: Verifies the password reset code.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                code:
+                  type: string
+      responses:
+        '200':
+          description: Code verified
+        '400':
+          description: Invalid code
+
+  /Auth/password/reset:
+    post:
+      tags:
+        - Authentication
+      summary: Reset Password
+      description: Resets the user's password using a verified code.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                code:
+                  type: string
+                newPassword:
+                  type: string
+      responses:
+        '200':
+          description: Password reset successful
+        '400':
+          description: Invalid request
+
+  # ================================
+  # User Endpoints
+  # ================================
+  /User/me/profile:
+    post:
+      tags:
+        - User
+      summary: Get User Profile
+      description: Retrieves the current user's profile.
+      responses:
+        '200':
+          description: Returns user profile
+        '401':
+          description: Unauthorized
+
+  /User/me/activate:
+    post:
+      tags:
+        - User
+      summary: Activate User Account
+      description: Activates the current user's account.
+      responses:
+        '200':
+          description: Account activated
+
+  /User/me/profile/update-image:
+    post:
+      tags:
+        - User
+      summary: Update Profile Image
+      description: Updates the current user's profile image.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Image updated successfully
+
+  /User/me:
+    get:
+      tags:
+        - User
+      summary: Get Current User Data
+      description: Retrieves data for the current user.
+      responses:
+        '200':
+          description: User data retrieved
+
+    delete:
+      tags:
+        - User
+      summary: Deactivate User Account
+      description: Deactivates the current user's account.
+      responses:
+        '200':
+          description: Account deactivated
+
+  /User/admin/changePassword/{id}:
+    post:
+      tags:
+        - User
+      summary: Admin Change User Password
+      description: Allows an admin to change the password of a specific user.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: User ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                newPassword:
+                  type: string
+      responses:
+        '200':
+          description: Password changed successfully
+
+  /User/admin:
+    post:
+      tags:
+        - User
+      summary: Create Admin User
+      description: Creates a new admin user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUser'
+      responses:
+        '200':
+          description: Admin user created successfully
+
+  /User/admin/{id}:
+    get:
+      tags:
+        - User
+      summary: Get Admin User by ID
+      description: Retrieves details of an admin user.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Admin User ID
+      responses:
+        '200':
+          description: Returns admin user details
+    put:
+      tags:
+        - User
+      summary: Update Admin User
+      description: Updates information for an admin user.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Admin User ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUser'
+      responses:
+        '200':
+          description: Admin user updated successfully
+    delete:
+      tags:
+        - User
+      summary: Delete Admin User
+      description: Deletes an admin user.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Admin User ID
+      responses:
+        '200':
+          description: Admin user deleted successfully
+
+  # ================================
+  # Category Endpoints
+  # ================================
+  /Category:
+    post:
+      tags:
+        - Category
+      summary: Create Category
+      description: Creates a new product category.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+      responses:
+        '200':
+          description: Category created successfully
+    get:
+      tags:
+        - Category
+      summary: Get All Categories
+      description: Retrieves a list of all categories.
+      responses:
+        '200':
+          description: List of categories returned
+
+  /Category/{id}:
+    get:
+      tags:
+        - Category
+      summary: Get Category by ID
+      description: Retrieves a category by its ID.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Category ID
+      responses:
+        '200':
+          description: Category details returned
+    put:
+      tags:
+        - Category
+      summary: Update Category
+      description: Updates the details of a category.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Category ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+      responses:
+        '200':
+          description: Category updated successfully
+    delete:
+      tags:
+        - Category
+      summary: Delete Category
+      description: Deletes a category.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Category ID
+      responses:
+        '200':
+          description: Category deleted successfully
+
+  /Category/update-Image-Category/{id}:
+    put:
+      tags:
+        - Category
+      summary: Update Category Image
+      description: Updates the image for a specific category.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Category ID
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Category image updated successfully
+
+  /Category/{id}/Products:
+    get:
+      tags:
+        - Category
+      summary: Get Products in Category
+      description: Retrieves products associated with a specific category.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Category ID
+      responses:
+        '200':
+          description: List of products returned
+
+  # ================================
+  # Product Endpoints
+  # ================================
+  /Product:
+    post:
+      tags:
+        - Product
+      summary: Create Product
+      description: Creates a new product.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: Product created successfully
+    get:
+      tags:
+        - Product
+      summary: Get All Products
+      description: Retrieves all products.
+      responses:
+        '200':
+          description: List of products returned
+
+  /Product/{id}:
+    get:
+      tags:
+        - Product
+      summary: Get Product by ID
+      description: Retrieves details of a product by its ID.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Product ID
+      responses:
+        '200':
+          description: Product details returned
+    put:
+      tags:
+        - Product
+      summary: Update Product
+      description: Updates details of a product.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Product ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: Product updated successfully
+    delete:
+      tags:
+        - Product
+      summary: Delete Product
+      description: Deletes a product.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Product ID
+      responses:
+        '200':
+          description: Product deleted successfully
+
+  /Product/update-Image-Product/{id}:
+    put:
+      tags:
+        - Product
+      summary: Update Product Image
+      description: Updates the image of a product.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Product ID
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Product image updated successfully
+
+  /Product/admin/{id}:
+    delete:
+      tags:
+        - Product
+      summary: Admin Delete Product
+      description: Allows an admin to delete a product.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: Product ID
+      responses:
+        '200':
+          description: Product deleted by admin
+
+  # ================================
+  # Wishlist Endpoints
+  # ================================
+  /Wishlist/{ProductId}:
+    post:
+      tags:
+        - Wishlist
+      summary: Add Product to Wishlist
+      description: Adds a product to the user's wishlist.
+      parameters:
+        - in: path
+          name: ProductId
+          schema:
+            type: string
+          required: true
+          description: Product ID
+      responses:
+        '200':
+          description: Product added to wishlist
+    delete:
+      tags:
+        - Wishlist
+      summary: Remove Product from Wishlist
+      description: Removes a product from the user's wishlist.
+      parameters:
+        - in: path
+          name: ProductId
+          schema:
+            type: string
+          required: true
+          description: Product ID
+      responses:
+        '200':
+          description: Product removed from wishlist
+
+  /Wishlist/:
+    get:
+      tags:
+        - Wishlist
+      summary: Get Wishlist
+      description: Retrieves all products in the user's wishlist.
+      responses:
+        '200':
+          description: List of wishlist products returned
+
+  # ================================
+  # Cart Endpoints
+  # ================================
+  /Cart/{ProductId}:
+    post:
+      tags:
+        - Cart
+      summary: Add Product to Cart
+      description: Adds a product to the user's cart.
+      parameters:
+        - in: path
+          name: ProductId
+          schema:
+            type: string
+          required: true
+          description: Product ID
+      responses:
+        '200':
+          description: Product added to cart
+    delete:
+      tags:
+        - Cart
+      summary: Remove Product from Cart
+      description: Removes a product from the user's cart.
+      parameters:
+        - in: path
+          name: ProductId
+          schema:
+            type: string
+          required: true
+          description: Product ID
+      responses:
+        '200':
+          description: Product removed from cart
+
+  /Cart/:
+    get:
+      tags:
+        - Cart
+      summary: Get Cart
+      description: Retrieves all items in the user's cart.
+      responses:
+        '200':
+          description: List of cart items returned
+
+  /Cart/clear:
+    put:
+      tags:
+        - Cart
+      summary: Clear Cart
+      description: Clears the user's cart.
+      responses:
+        '200':
+          description: Cart cleared successfully
+
+  # ================================
+  # Review Endpoints
+  # ================================
+  /Review/{productId}:
+    post:
+      tags:
+        - Review
+      summary: Add Review
+      description: Adds a review for a specific product.
+      parameters:
+        - in: path
+          name: productId
+          schema:
+            type: string
+          required: true
+          description: Product ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Review'
+      responses:
+        '200':
+          description: Review added successfully
+    get:
+      tags:
+        - Review
+      summary: Get Reviews
+      description: Retrieves all reviews for a specific product.
+      parameters:
+        - in: path
+          name: productId
+          schema:
+            type: string
+          required: true
+          description: Product ID
+      responses:
+        '200':
+          description: List of reviews returned
+
+  /Review/{reviewId}:
+    put:
+      tags:
+        - Review
+      summary: Update Review
+      description: Updates an existing review.
+      parameters:
+        - in: path
+          name: reviewId
+          schema:
+            type: string
+          required: true
+          description: Review ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Review'
+      responses:
+        '200':
+          description: Review updated successfully
+    delete:
+      tags:
+        - Review
+      summary: Delete Review
+      description: Deletes a specific review.
+      parameters:
+        - in: path
+          name: reviewId
+          schema:
+            type: string
+          required: true
+          description: Review ID
+      responses:
+        '200':
+          description: Review deleted successfully
+
+  # ================================
+  # Order Endpoints
+  # ================================
+  /order:
+    post:
+      tags:
+        - Order
+      summary: Place Order
+      description: Places a new order.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+      responses:
+        '200':
+          description: Order placed successfully
+
+  /Order/{orderId}:
+    get:
+      tags:
+        - Order
+      summary: Get Order Details
+      description: Retrieves details of an order by its ID.
+      parameters:
+        - in: path
+          name: orderId
+          schema:
+            type: string
+          required: true
+          description: Order ID
+      responses:
+        '200':
+          description: Order details returned
+    delete:
+      tags:
+        - Order
+      summary: Delete Order
+      description: Deletes a specific order.
+      parameters:
+        - in: path
+          name: orderId
+          schema:
+            type: string
+          required: true
+          description: Order ID
+      responses:
+        '200':
+          description: Order deleted successfully
+
+  /Order/total:
+    get:
+      tags:
+        - Order
+      summary: Get Total Orders Value
+      description: Retrieves the total value of orders for the user.
+      responses:
+        '200':
+          description: Total value returned
+
+  /Order/{userId}:
+    get:
+      tags:
+        - Order
+      summary: Get Orders by User ID
+      description: Retrieves all orders placed by a specific user.
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+          description: User ID
+      responses:
+        '200':
+          description: List of orders returned
+
+  /Order/Product/{productId}/count:
+    get:
+      tags:
+        - Order
+      summary: Get Order Count for Product
+      description: Retrieves the count of orders for a specific product.
+      parameters:
+        - in: path
+          name: productId
+          schema:
+            type: string
+          required: true
+          description: Product ID
+      responses:
+        '200':
+          description: Order count returned
+
+  /Order/status/{status}:
+    get:
+      tags:
+        - Order
+      summary: Get Orders by Status
+      description: Retrieves orders filtered by status.
+      parameters:
+        - in: path
+          name: status
+          schema:
+            type: string
+          required: true
+          description: Order status (e.g., Paid, Shipped, Delivered, Cancelled)
+      responses:
+        '200':
+          description: List of orders returned
+
+  /user/{userId}/status/{status}:
+    get:
+      tags:
+        - Order
+      summary: Get Orders for User by Status
+      description: Retrieves orders for a specific user filtered by status.
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+          description: User ID
+        - in: path
+          name: status
+          schema:
+            type: string
+          required: true
+          description: Order status
+      responses:
+        '200':
+          description: List of orders returned
+
+  /Order/{orderId}/Paid:
+    put:
+      tags:
+        - Order
+      summary: Mark Order as Paid
+      description: Updates an order's status to "Paid".
+      parameters:
+        - in: path
+          name: orderId
+          schema:
+            type: string
+          required: true
+          description: Order ID
+      responses:
+        '200':
+          description: Order status updated to Paid
+
+  /Order/{orderId}/Shipped:
+    put:
+      tags:
+        - Order
+      summary: Mark Order as Shipped
+      description: Updates an order's status to "Shipped".
+      parameters:
+        - in: path
+          name: orderId
+          schema:
+            type: string
+          required: true
+          description: Order ID
+      responses:
+        '200':
+          description: Order status updated to Shipped
+
+  /Order/{orderId}/Delivered:
+    put:
+      tags:
+        - Order
+      summary: Mark Order as Delivered
+      description: Updates an order's status to "Delivered".
+      parameters:
+        - in: path
+          name: orderId
+          schema:
+            type: string
+          required: true
+          description: Order ID
+      responses:
+        '200':
+          description: Order status updated to Delivered
+
+  /Order/{orderId}/Cancelled:
+    delete:
+      tags:
+        - Order
+      summary: Cancel Order
+      description: Cancels an order.
+      parameters:
+        - in: path
+          name: orderId
+          schema:
+            type: string
+          required: true
+          description: Order ID
+      responses:
+        '200':
+          description: Order cancelled successfully
+
+components:
+  schemas:
+    UserRegister:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+        - username
+        - email
+        - password
+
+    UserLogin:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    AdminUser:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+        - username
+        - email
+        - password
+
+    Category:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+      required:
+        - name
+
+    Product:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        categoryId:
+          type: string
+      required:
+        - name
+        - price
+        - categoryId
+
+    Review:
+      type: object
+      properties:
+        rating:
+          type: number
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+      required:
+        - rating
+
+    Order:
+      type: object
+      properties:
+        userId:
+          type: string
+        products:
+          type: array
+          items:
+            type: object
+            properties:
+              productId:
+                type: string
+              quantity:
+                type: number
+        totalPrice:
+          type: number
+      required:
+        - userId
+        - products
