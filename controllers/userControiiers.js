@@ -1,6 +1,6 @@
 const { json } = require('express');
 const User = require('../models/Usermodels');
-const ApiError = require('../utils/apiError');
+const ApiError = require('../utils/APIError');
 const asyncHandler = require('express-async-handler')
 const bcrypt = require('bcryptjs');
 const { uploadImage } = require('../utils/UploadImage')

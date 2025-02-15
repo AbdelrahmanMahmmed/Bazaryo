@@ -1,6 +1,6 @@
 const { json } = require('express');
 const Product = require('../models/ProductModel');
-const ApiError = require('../utils/apiError');
+const ApiError = require('../utils/APIError');
 const asyncHandler = require('express-async-handler')
 const { uploadImage } = require('../utils/UploadImage')
 

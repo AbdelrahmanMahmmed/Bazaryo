@@ -2,7 +2,7 @@ const { json } = require('express');
 const Product = require('../models/ProductModel');
 const User = require('../models/Usermodels');
 const Order = require('../models/OrderModel');
-const ApiError = require('../utils/apiError');
+const ApiError = require('../utils/APIError');
 const asyncHandler = require('express-async-handler')
 
 // @desc   Create Order
