@@ -6,8 +6,6 @@ const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 const path = require('path');
 const cors = require('cors');
-const fs = require('fs');
-const https = require('https');
 const PORT = process.env.PORT || 3000;
 
 // Load env variables
@@ -21,16 +19,9 @@ const globalError = require('./middleware/errormiddleware.js');
 
 // Middleware
 app.use(express.json());
-if (process.env.NODE_ENV == "development") {
-    app.use(morgan("dev"));
-    console.log(process.env.NODE_ENV);
-}
+app.use(morgan("dev"));
+    
 
-// SSL Certificate
-const privateKey = fs.readFileSync('ssl/private.key', 'utf8');
-const certificate = fs.readFileSync('ssl/certificate.crt', 'utf8');
-const credentials = { key: privateKey, cert: certificate };
-const httpsServer = https.createServer(credentials, app);
 
 // Enable CORS
 app.use(cors());
