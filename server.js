@@ -47,7 +47,7 @@ app.get('/', (req, res) => {
 });
 
 // Swagger Documentation
-
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // Router
 app.use('/api/v1/Auth', AuthRouter);
 app.use('/api/v1/User', UserRouter);
@@ -57,7 +57,6 @@ app.use('/api/v1/Wishlist', WshlistRouter);
 app.use('/api/v1/Cart', CartRouter);
 app.use('/api/v1/Review', ReviewRouter);
 app.use('/api/v1/Order', OrderRouter);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // Error handling middleware on Express
 app.all('*', (req, res, next) => {
     next(new ApiError(`This is the err No route ${req.originalUrl}`, 400));
